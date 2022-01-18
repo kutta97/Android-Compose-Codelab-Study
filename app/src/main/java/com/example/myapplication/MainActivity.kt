@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,9 +62,13 @@ fun MessageCard(msg: Message) {
 
         // Keep track if the message is expanded or not in this Column Variable
         var isExpanded by remember { mutableStateOf(false) }
+        // surfaceColor will be updated gradually from one color to the other
+        val surfaceColor: Color by animateColorAsState(
+            if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface
+        )
         
         // Toggle the isExpanded variable when we click on this Column
-        Column(modifier = Modifier.clickable { isExpanded!= isExpanded }) {
+        Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
                 text = msg.author,
                 color = MaterialTheme.colors.secondaryVariant,
@@ -71,7 +78,14 @@ fun MessageCard(msg: Message) {
             // Add a vertical space between the author and message text
             Spacer(modifier = Modifier.height(4.dp))
 
-            Surface(shape = MaterialTheme.shapes.medium, elevation = 1.dp) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                elevation = 1.dp,
+                // surfaceColor color will be changing gradually from primary to surface
+                color = surfaceColor,
+                // animateContentSize will change the Surface size gradually
+                modifier = Modifier.animateContentSize().padding(1.dp)
+            ) {
                 Text(
                     text = msg.body,
                     modifier = Modifier.padding(all = 4.dp),
